@@ -553,6 +553,10 @@ namespace noctalia::theme {
       options.verbose = true;
       TemplateEngine engine(TemplateEngine::makeThemeData(palette), std::move(options));
 
+      // process any provided config *before* trying to render, so things like custom colors work
+      if (configPath && !engine.processConfigFile(configPath))
+        return 1;
+
       for (const auto& spec : renderSpecs) {
         const size_t colon = spec.find(':');
         if (colon == std::string::npos) {
@@ -565,9 +569,6 @@ namespace noctalia::theme {
         if (!result.success)
           return 1;
       }
-
-      if (configPath && !engine.processConfigFile(configPath))
-        return 1;
     }
 
     return 0;
